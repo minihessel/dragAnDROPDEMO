@@ -7,6 +7,7 @@ package dragandropdemo;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -21,12 +22,11 @@ import javafx.scene.control.TreeView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
+import org.controlsfx.dialog.Dialogs;
 
 /**
  *
@@ -44,13 +44,15 @@ public class FXMLDocumentController implements Initializable {
     private TreeView treeView;
     @FXML
     private TreeView treeView2;
-       private ContextMenu rootContextMenu;
+    private ContextMenu rootContextMenu;
+
+    TextField textField2;
 
     @FXML
     private TextField textField;
     private static TreeItem DRAGGEDSOURCE;
     private static TreeItem DRAGGEDTARGET;
-      private static TreeCell RENAMETARGET;
+    private static TreeCell RENAMETARGET;
 
     TreeItem<String> rootNode
             = new TreeItem<String>("New Table");
@@ -66,28 +68,48 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void handleButtonAction(ActionEvent event) {
 
-        treeView2.getRoot().getChildren().add(new TreeItem<String>(textField.getText().toString()));
+        treeView2.getRoot().getChildren().add(new TreeItem<>(textField.getText()));
+      
+        
 
     }
-    
-    
 
     private void addDragAndDrop(TreeCell<String> treeCell) {
-        
-        
-    /*    treeCell.setOnMouseClicked(new EventHandler<MouseEvent>(){
+
+        /*    treeCell.setOnMouseClicked(new EventHandler<MouseEvent>(){
          @Override
+         public void handle(MouseEvent event) {
+         treeView.setEditable(true);
+         treeView.edit(treeCell.getTreeItem());
+            
+         }
+            
+             
+         });**/
+        treeCell.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+            int clickCount = 0;
+
+            @Override
             public void handle(MouseEvent event) {
-                treeView.setEditable(true);
-            treeView.edit(treeCell.getTreeItem());
-            
-                          }
-            
-        
-            
-            
-           
-        });**/
+   
+                if (clickCount >= 2 && treeCell.getTreeItem().valueProperty().get() == "ColumnTrue") {
+                    Optional<String> response = Dialogs.create()
+                            .title("Text Input Dialog")
+                            .masthead("Look, a Text Input Dialog")
+                            .message("Please enter your name:")
+                            .showTextInput("walter");
+
+                    treeCell.setText("asd");
+
+// The Java 8 way to get the response value (with lambda expression).
+                    response.ifPresent(name
+                            -> treeCell.getTreeItem().setValue(name));
+                }
+                clickCount++;
+            }
+        });
+
         treeCell.setOnDragDetected(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -149,74 +171,6 @@ public class FXMLDocumentController implements Initializable {
 
         });
     }
-    
-    
-        private final class TextFieldTreeCellImpl extends TreeCell<String> {
- 
-        private TextField textField;
- 
-        public TextFieldTreeCellImpl() {
-        }
- 
-        @Override
-        public void startEdit() {
-            super.startEdit();
- 
-            if (textField == null) {
-                createTextField();
-            }
-            setText(null);
-            setGraphic(textField);
-            textField.selectAll();
-        }
- 
-        @Override
-        public void cancelEdit() {
-            super.cancelEdit();
-            setText((String) getItem());
-            setGraphic(getTreeItem().getGraphic());
-        }
- 
-        @Override
-        public void updateItem(String item, boolean empty) {
-            super.updateItem(item, empty);
- 
-            if (empty) {
-                setText(null);
-                setGraphic(null);
-            } else {
-                if (isEditing()) {
-                    if (textField != null) {
-                        textField.setText(getString());
-                    }
-                    setText(null);
-                    setGraphic(textField);
-                } else {
-                    setText(getString());
-                    setGraphic(getTreeItem().getGraphic());
-                }
-            }
-        }
- 
-        private void createTextField() {
-            textField = new TextField(getString());
-            textField.setOnKeyReleased(new EventHandler<KeyEvent>() {
- 
-                @Override
-                public void handle(KeyEvent t) {
-                    if (t.getCode() == KeyCode.ENTER) {
-                        commitEdit(textField.getText());
-                    } else if (t.getCode() == KeyCode.ESCAPE) {
-                        cancelEdit();
-                    }
-                }
-            });
-        }
- 
-        private String getString() {
-            return getItem() == null ? "" : getItem().toString();
-        }
-    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -253,7 +207,7 @@ public class FXMLDocumentController implements Initializable {
                         if (!empty && item != null) {
                             setText(item);
                             setGraphic(getTreeItem().getGraphic());
-                            
+
                         } else {
                             setText(null);
                             setGraphic(null);
@@ -262,7 +216,7 @@ public class FXMLDocumentController implements Initializable {
                 };
 
                 addDragAndDrop(treeCell);
-
+                treeView.setEditable(true);
                 return treeCell;
             }
         });

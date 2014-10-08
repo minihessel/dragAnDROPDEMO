@@ -11,8 +11,8 @@
   </resources>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="dragAnDROPDEMO.jar" size="16334" download="eager" />
-    <jar href="lib/controlsfx-8.0.6.jar" size="916060" download="eager" />
+    <jar href="dragAnDROPDEMO.jar" size="17355" download="eager" />
+    <jar href="lib/controlsfx-8.0.6.jar" size="916059" download="eager" />
   </resources>
 <security>
   <all-permissions/>
